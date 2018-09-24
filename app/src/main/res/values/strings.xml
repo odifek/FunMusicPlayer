@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Fun Music Player</string>
+    <string name="label_play">Play</string>
+    <string name="label_pause">Pause</string>
+    <string name="label_next">Next</string>
+    <string name="label_prev">Previous</string>
+</resources>
