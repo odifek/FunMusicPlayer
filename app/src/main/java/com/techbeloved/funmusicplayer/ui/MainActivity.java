@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -38,30 +39,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTitleTextView = findViewById(R.id.song_title_text_view);
-        mArtistTextView = findViewById(R.id.artist_text_view);
-        mAlbumArt = findViewById(R.id.album_art_image_view);
-        mPlayPauseBtn = findViewById(R.id.btn_play);
+        Intent intent = new Intent(this, MusicListingActivity.class);
+        startActivity(intent);
 
-        final ClickListener clickListener = new ClickListener();
-        findViewById(R.id.btn_prev).setOnClickListener(clickListener);
-        mPlayPauseBtn.setOnClickListener(clickListener);
-        findViewById(R.id.btn_next).setOnClickListener(clickListener);
-
-        mMediaBrowserHelper = new MediaBrowserConnection(this);
-        mMediaBrowserHelper.registerCallback(new MediaBrowserListener());
+//        mTitleTextView = findViewById(R.id.song_title_text_view);
+//        mArtistTextView = findViewById(R.id.artist_text_view);
+//        mAlbumArt = findViewById(R.id.album_art_image_view);
+//        mPlayPauseBtn = findViewById(R.id.btn_play);
+//
+//        final ClickListener clickListener = new ClickListener();
+//        findViewById(R.id.btn_prev).setOnClickListener(clickListener);
+//        mPlayPauseBtn.setOnClickListener(clickListener);
+//        findViewById(R.id.btn_next).setOnClickListener(clickListener);
+//
+//        mMediaBrowserHelper = new MediaBrowserConnection(this);
+//        mMediaBrowserHelper.registerCallback(new MediaBrowserListener());
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        mMediaBrowserHelper.onStart();
+//        mMediaBrowserHelper.onStart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mMediaBrowserHelper.onStop();
+//        mMediaBrowserHelper.onStop();
     }
 
     private class ClickListener implements View.OnClickListener {

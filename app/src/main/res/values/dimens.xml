@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The default letter tile text size -->
+    <dimen name="tile_letter_font_size">33sp</dimen>
+    <!-- The deafult tile size -->
+    <dimen name="letter_tile_size">136dp</dimen>
+</resources>
