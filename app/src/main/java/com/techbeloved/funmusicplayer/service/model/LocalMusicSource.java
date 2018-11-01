@@ -49,13 +49,14 @@ public class LocalMusicSource implements MusicProviderSource {
 
     }
 
-    private <T> Single<List<T>> getMediaFilesInBackground(final Uri uri, final CursorHandler<T> cursorHandler) {
+    private  Single<List<MediaMetadataCompat>> getMediaFilesInBackground(final Uri uri, final CursorHandler<MediaMetadataCompat> cursorHandler) {
 
-        return Observable.create((ObservableOnSubscribe<T>) emitter -> {
+        return Observable.create((ObservableOnSubscribe<MediaMetadataCompat>) emitter -> {
+            String selection = MediaStore.Audio.AudioColumns.IS_MUSIC + ">?";
             Cursor cursor = mContext.getContentResolver().query(uri,
                     null,
-                    null,
-                    null,
+                    selection,
+                    new String[]{String.valueOf(0)},
                     MediaStore.Audio.AudioColumns.TITLE);
 
             if (cursor != null && cursor.getCount() > 0) {
@@ -69,43 +70,60 @@ public class LocalMusicSource implements MusicProviderSource {
                 emitter.onError(new Throwable("Error: no Item retrieved"));
             }
         })
-                .flatMap((Function<T, ObservableSource<T>>) data
-                        -> getAlbumInfo(data, cursorHandler))
-                .toList();
+                .flatMap((Function<MediaMetadataCompat, ObservableSource<MediaMetadataCompat>>) data -> {
+//                MediaMetadataCompat currentMedia = (MediaMetadataCompat) data;
+            return insertAlbumInfo(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, data, new AlbumCursorHandler());
+        })
+                .toList()
+
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
      * Queries the MediaStore Albums table for the album information of the given media
-     *
-     * @param <T>           is mostly {@link MediaMetadataCompat} or something like that
-     * @param data          represents the original metadata that we want to add more info to
-     * @param cursorHandler iterates through the cursor retrieving desired information
+     * @param uri
+     * @param data
+     * @param cursorHandler
      * @return
      */
-    private <T> Observable<T> getAlbumInfo(T data, final CursorHandler<T> cursorHandler) {
-        MediaMetadataCompat currentMedia = (MediaMetadataCompat) data;
-        String album = currentMedia.getString(MediaMetadataCompat.METADATA_KEY_ALBUM);
-        String selection = MediaStore.Audio.Albums.ALBUM + "=?";
-        return Observable.create((ObservableEmitter<T> emitter) -> {
-            Cursor cursor = mContext.getContentResolver().query(LocalMusicSource.CONTENT_URI_ALBUMS,
+    private Observable <MediaMetadataCompat> insertAlbumInfo(final Uri uri, MediaMetadataCompat data, final CursorHandler<MediaMetadataCompat> cursorHandler) {
+        String album = data.getString(MediaMetadataCompat.METADATA_KEY_ALBUM);
+        Log.i(TAG, "insertAlbumInfo: " + album);
+        String selection = null;
+        String[] selectionArgs = null;
+        if (album != null) {
+            selection = MediaStore.Audio.Albums.ALBUM + "=?";
+            selectionArgs = new String[]{album};
+        }
+        String finalSelection = selection;
+        String[] finalSelectionArgs = selectionArgs;
+        return Observable.create((ObservableEmitter<MediaMetadataCompat> emitter) -> {
+            Cursor cursor = mContext.getContentResolver().query(uri,
                     null,
-                    selection,
-                    new String[]{album},
+                    finalSelection,
+                    finalSelectionArgs,
                     null);
+//            Log.i(TAG, "insertAlbumInfo: did we get any thing from albums?");
             if (cursor != null && cursor.getCount() > 0) {
+//                Log.i(TAG, "insertAlbumInfo: yes");
                 cursor.moveToFirst();
-                MediaMetadataCompat albumData = (MediaMetadataCompat) cursorHandler.handle(cursor);
-                MediaMetadataCompat resultMeta = rebuildMetaWithAlbumInfo(currentMedia, albumData);
-                emitter.onNext((T) resultMeta);
+                MediaMetadataCompat albumData = cursorHandler.handle(cursor);
+                MediaMetadataCompat resultMeta = rebuildMetaWithAlbumInfo(data, albumData);
+                emitter.onNext(resultMeta);
 
                 cursor.close();
             } else {
                 // Just return the original media metadata
+//                emitter.onError(new Throwable("Error: no album info available!"));
+//                Log.i(TAG, "insertAlbumInfo: no");
                 emitter.onNext(data);
 
             }
             emitter.onComplete(); // Has to be called inorder that the outer observable can complete
         });
+//                .subscribeOn(Schedulers.io());
+//                .observeOn(AndroidSchedulers.mainThread());
     }
 
     /**

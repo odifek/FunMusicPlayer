@@ -11,6 +11,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -39,33 +40,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent(this, MusicListingActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, MusicListingActivity.class);
+//        startActivity(intent);
 
-//        mTitleTextView = findViewById(R.id.song_title_text_view);
-//        mArtistTextView = findViewById(R.id.artist_text_view);
-//        mAlbumArt = findViewById(R.id.album_art_image_view);
-//        mPlayPauseBtn = findViewById(R.id.btn_play);
-//
-//        final ClickListener clickListener = new ClickListener();
-//        findViewById(R.id.btn_prev).setOnClickListener(clickListener);
-//        mPlayPauseBtn.setOnClickListener(clickListener);
-//        findViewById(R.id.btn_next).setOnClickListener(clickListener);
-//
-//        mMediaBrowserHelper = new MediaBrowserConnection(this);
-//        mMediaBrowserHelper.registerCallback(new MediaBrowserListener());
+        mTitleTextView = findViewById(R.id.song_title_text_view);
+        mArtistTextView = findViewById(R.id.artist_text_view);
+        mAlbumArt = findViewById(R.id.album_art_image_view);
+        mPlayPauseBtn = findViewById(R.id.btn_play);
+
+        final ClickListener clickListener = new ClickListener();
+        findViewById(R.id.btn_prev).setOnClickListener(clickListener);
+        mPlayPauseBtn.setOnClickListener(clickListener);
+        findViewById(R.id.btn_next).setOnClickListener(clickListener);
+
+        mMediaBrowserHelper = new MediaBrowserConnection(this);
+        mMediaBrowserHelper.registerCallback(new MediaBrowserListener());
     }
 
     @Override
     public void onStart() {
         super.onStart();
-//        mMediaBrowserHelper.onStart();
+        mMediaBrowserHelper.onStart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-//        mMediaBrowserHelper.onStop();
+        mMediaBrowserHelper.onStop();
     }
 
     private class ClickListener implements View.OnClickListener {
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Queue up all media items for this simple sample.
             for (final MediaBrowserCompat.MediaItem mediaItem : children) {
+                Log.i("MainActivity", "onChildrenLoaded: " + mediaItem.getMediaId() + " browseable? " + mediaItem.isBrowsable());
                 mediaController.addQueueItem(mediaItem.getDescription());
             }
 

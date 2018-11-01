@@ -1,7 +1,9 @@
 package com.techbeloved.funmusicplayer.service.model;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.provider.MediaStore;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -42,11 +44,12 @@ public class MusicProvider {
         void onMusicCatalogReady(boolean success);
     }
 
-    public MusicProvider() {
+    public MusicProvider(Context context) {
         // We are not doing this here. Just temporary
-        mMusicListByGenre = new ConcurrentHashMap<>();
-        mMusicListById = new ConcurrentHashMap<>();
-        mFavoriteTracks = Collections.newSetFromMap(new ConcurrentHashMap<>());
+        this(new LocalMusicSource(context));
+//        mMusicListByGenre = new ConcurrentHashMap<>();
+//        mMusicListById = new ConcurrentHashMap<>();
+//        mFavoriteTracks = Collections.newSetFromMap(new ConcurrentHashMap<>());
     }
 
     public MusicProvider(MusicProviderSource source) {
@@ -307,6 +310,7 @@ public class MusicProvider {
         else {
             Log.w(TAG, "getChildren: Skipping unmatched mediaId:" + mediaId);
         }
+        Log.i(TAG, "getChildren: " + mediaItems.get(0).getMediaId());
 
         return mediaItems;
     }
